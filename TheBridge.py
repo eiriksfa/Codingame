@@ -26,6 +26,7 @@ def check_death(lanes, s, y, x):
             continue
         if lanes[y][x-i] == '0':
             return True
+    return False
 
 
 def update_state(lanes, s, states, move):
@@ -37,11 +38,10 @@ def update_state(lanes, s, states, move):
         s = 0
     nstates = []
     for (x, y, a) in states:
-        if a == 0:
-            continue
         x += s
-
-        if move == 'UP':
+        if a == 0:
+            pass
+        elif move == 'UP':
             y -= 1
             if check_death(lanes, s, y, x) or check_death(lanes, s-1, y+1, x-1):
                 a = 0
@@ -50,7 +50,7 @@ def update_state(lanes, s, states, move):
             if check_death(lanes, s, y, x) or check_death(lanes, s-1, y-1, x-1):
                 a = 0
         elif move == 'JUMP':
-            if x < len(lanes) or lanes[y][x] == '0':
+            if x < len(lanes[0]) and lanes[y][x] == '0':
                 a = 0
         else:
             if check_death(lanes, s, y, x):
@@ -75,7 +75,7 @@ def check_status(lanes, states, nsurvive, nbikes):
 
 
 def check_bounds(states, move, s):
-    if move == 'SLOW' and s < 1:
+    if move == 'SLOW' and s < 2 or move == 'WAIT' and s < 1:
         return False
     if not (move == 'UP' or move == 'DOWN'):
         return True
@@ -92,8 +92,8 @@ def rec_search(lanes, s, states, move, nsurvive, nbikes, depth):
     nstatus = check_status(lanes, nstates, nsurvive, nbikes)
     if nstatus == -1 or nstatus == 1:
         return nstatus
-    if depth > 30:
-        return -1
+    if depth > 15:
+        return 1
     for move in moves:
         if not check_bounds(nstates, move, ns):
             continue
